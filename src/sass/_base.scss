@@ -1,0 +1,120 @@
+$color-main: #ffa500;
+$color-sec: #01b33c;
+
+$gradient: linear-gradient(to right bottom, $color-main, $color-sec);
+
+// CSS resets
+* {
+  margin: 0;
+  padding: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  background-image: $gradient;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+.page-container {
+  background-color: whitesmoke;
+  //   max-width: 90%;
+  max-width: 65rem;
+  min-height: 75vh;
+  margin: 2vw auto;
+  padding: 2rem;
+  border-radius: 1.5rem;
+
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+  display: grid;
+  //   grid-template-rows: 10rem minmax(100rem, auto);
+  grid-template-columns: 1fr 3fr;
+}
+
+.logo {
+  width: 100%;
+}
+
+.main-content {
+  // background-color: red;
+  padding-left: 1rem;
+}
+
+.search-form input[type="text"] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.search-form input[type="submit"] {
+  width: 100%;
+  background-color: $color-main;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.search-form input[type="submit"]:hover {
+  background-color: $color-sec;
+}
+
+.search-results {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.country-container {
+  
+  height: 95%;
+  // opacity: 0.3;
+  padding: 1rem;
+  
+}
+
+.country-container-header {
+  margin-bottom: 1rem;
+}
+
+.country-container-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 1rem;
+}
+
+.country-message {
+  text-align: center;
+  margin-top:2rem;
+  font-style: italic;
+  font-weight: 500;
+  // background-image: url("../img/map.jpg");
+  // background-position: center;
+  // background-repeat: no-repeat;
+  // background-size: cover;
+  // height: 100%;
+}
+
+.country-details ul {
+  list-style-type: none;
+}
+
+.country-flag img {
+  border: 1rem solid white;
+}

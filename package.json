@@ -1,0 +1,21 @@
+{
+  "name": "my-mapz-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "rm -r ./development && rm -r ./.cache && parcel public/index.html --out-dir development -p 1977",
+    "dev-win": "del /Q development && del /Q .cache && parcel public/index.html --out-dir development -p 1977",
+    "build": "parcel build public/index.html --out-dir dist --public-url ./"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/plugin-transform-runtime": "^7.16.0",
+    "@babel/runtime-corejs2": "^7.16.0",
+    "parcel-bundler": "^1.12.5",
+    "sass": "^1.43.4"
+  }
+}
