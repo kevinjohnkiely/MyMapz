@@ -67,6 +67,7 @@ body {
 
 .search-results {
   column-gap: 1rem;
+  row-gap: 1rem;
   margin: 10px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -75,6 +76,17 @@ body {
 .search-results-holder {
   display: grid;
   grid-template-columns: 1fr 2fr;
+  background-color: #000000;
+  line-height: 1rem;
+  padding: 5px;
+  background-color: white;
+  border-radius: 5px;
+  border: 2px dashed #ffa500;
+}
+
+.search-results-holder:hover, .search-results-holder-active {
+  background-color: whitesmoke;
+  border: 2px dashed #000000;
 }
 
 .search-results-flag-round img {
@@ -85,6 +97,11 @@ body {
 
 .search-results-country-name {
   line-height: 40px;
+}
+
+.result-link {
+  text-decoration: none;
+  color: #000000;
 }
 
 .country-container {
@@ -119,6 +136,31 @@ body {
 
 .error-icon img {
   max-width: 100px;
+}
+
+.btn-fave {
+  background-color: #000000;
+  padding: 1rem;
+  border-radius: 2rem;
+  border: none;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+}
+
+.fave-list {
+  margin-left: 1rem;
+  list-style-image: url("/list.120afb8f.png");
+}
+
+.fave-list li a {
+  line-height: 13px;
+  text-decoration: none;
+  color: #000000;
+}
+
+.fave-list li a:hover {
+  color: #ffa500;
 }
 
 .loader,

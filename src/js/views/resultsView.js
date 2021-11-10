@@ -10,12 +10,14 @@ class ResultsView extends View {
   }
 
   _generateHTMLPreview(result){
-    return `
+    const id = window.location.hash.slice(1)
+    return `<a href="#${result.id}" class="result-link">
         <div class="search-results-holder">
         <div class="search-results-flag-round">
-        <a href="#${result.id}"><img src="${result.flag}"/></a></div>
+        <img src="${result.flag}"/></div>
         <div class="search-results-country-name">${result.name}</div>
     </div>
+    </a>
     `;
   }
 }

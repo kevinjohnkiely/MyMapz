@@ -79,6 +79,7 @@ body {
 
 .search-results {
   column-gap: 1rem;
+  row-gap: 1rem;
   margin: 10px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -87,6 +88,17 @@ body {
 .search-results-holder {
   display: grid;
   grid-template-columns: 1fr 2fr;
+  background-color: $color-sec;
+  line-height: 1rem;
+  padding: 5px;
+  background-color: white;
+  border-radius: 5px;
+  border: 2px dashed $color-main;
+}
+
+.search-results-holder:hover, .search-results-holder-active {
+  background-color: whitesmoke;
+  border: 2px dashed $color-sec;
 }
 
 .search-results-flag-round img {
@@ -98,6 +110,12 @@ body {
 .search-results-country-name {
   line-height: 40px;
 }
+
+.result-link {
+  text-decoration: none;
+  color: $color-sec;
+}
+
 
 .country-container {
   
@@ -134,4 +152,29 @@ body {
 
 .error-icon img{
   max-width: 100px;
+}
+
+.btn-fave {
+  background-color: $color-sec;
+  padding: 1rem;
+  border-radius: 2rem;
+  border: none;
+  text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+}
+
+.fave-list {
+  margin-left: 1rem;
+  list-style-image: url('../img/list.png');
+}
+
+.fave-list li a {
+  line-height: 13px;
+  text-decoration: none;
+  color: $color-sec
+}
+
+.fave-list li a:hover {
+  color: $color-main;
 }

@@ -2293,7 +2293,16 @@ try {
 
 },{}],"../node_modules/@babel/runtime-corejs2/regenerator/index.js":[function(require,module,exports) {
 module.exports = require("regenerator-runtime");
-},{"regenerator-runtime":"../node_modules/regenerator-runtime/runtime.js"}],"../src/js/config.js":[function(require,module,exports) {
+},{"regenerator-runtime":"../node_modules/regenerator-runtime/runtime.js"}],"../node_modules/core-js/library/fn/json/stringify.js":[function(require,module,exports) {
+var core = require('../../modules/_core');
+var $JSON = core.JSON || (core.JSON = { stringify: JSON.stringify });
+module.exports = function stringify(it) { // eslint-disable-line no-unused-vars
+  return $JSON.stringify.apply($JSON, arguments);
+};
+
+},{"../../modules/_core":"../node_modules/core-js/library/modules/_core.js"}],"../node_modules/@babel/runtime-corejs2/core-js/json/stringify.js":[function(require,module,exports) {
+module.exports = require("core-js/library/fn/json/stringify");
+},{"core-js/library/fn/json/stringify":"../node_modules/core-js/library/fn/json/stringify.js"}],"../src/js/config.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2386,9 +2395,11 @@ exports.getJSON = getJSON;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.state = exports.loadSearchResults = exports.loadCountry = void 0;
+exports.state = exports.loadSearchResults = exports.loadCountry = exports.deleteFavourite = exports.addFavourite = void 0;
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/asyncToGenerator"));
+
+var _stringify = _interopRequireDefault(require("@babel/runtime-corejs2/core-js/json/stringify"));
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime-corejs2/regenerator"));
 
@@ -2401,9 +2412,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var state = {
   country: {},
   search: {
-    query: '',
+    query: "",
     results: []
-  }
+  },
+  favourites: []
 };
 exports.state = state;
 
@@ -2428,9 +2440,17 @@ var loadCountry = /*#__PURE__*/function () {
               capital: country.capital[0],
               flag: country.flags.png,
               region: country.region,
-              neighbours: country.borders
+              pop: country.population
             };
-            console.log(state.country);
+
+            if (state.favourites.some(function (fave) {
+              return fave.id === id;
+            })) {
+              state.country.favourited = true;
+            } else {
+              state.country.favourited = false;
+            }
+
             _context.next = 13;
             break;
 
@@ -2497,7 +2517,50 @@ var loadSearchResults = /*#__PURE__*/function () {
 }();
 
 exports.loadSearchResults = loadSearchResults;
-},{"@babel/runtime-corejs2/helpers/asyncToGenerator":"../node_modules/@babel/runtime-corejs2/helpers/asyncToGenerator.js","@babel/runtime-corejs2/regenerator":"../node_modules/@babel/runtime-corejs2/regenerator/index.js","./config.js":"../src/js/config.js","./helpers.js":"../src/js/helpers.js"}],"../node_modules/core-js/library/modules/_bind.js":[function(require,module,exports) {
+
+var persistFavourites = function persistFavourites() {
+  localStorage.setItem('faves', (0, _stringify.default)(state.favourites));
+};
+
+var addFavourite = function addFavourite(country) {
+  // addd favourite
+  state.favourites.push(country); // mark current country as favourited
+
+  if (country.id === state.country.id) {
+    state.country.favourited = true;
+  }
+
+  persistFavourites();
+};
+
+exports.addFavourite = addFavourite;
+
+var deleteFavourite = function deleteFavourite(id) {
+  var index = state.favourites.findIndex(function (el) {
+    return el.id === id;
+  });
+  state.favourites.splice(index, 1); // mark current country as unfavourited
+
+  if (id === state.country.id) {
+    state.country.favourited = false;
+  }
+
+  persistFavourites();
+};
+
+exports.deleteFavourite = deleteFavourite;
+
+var init = function init() {
+  var storage = localStorage.getItem('faves');
+
+  if (storage) {
+    state.favourites = JSON.parse(storage);
+  }
+};
+
+init();
+console.log(state.favourites);
+},{"@babel/runtime-corejs2/helpers/asyncToGenerator":"../node_modules/@babel/runtime-corejs2/helpers/asyncToGenerator.js","@babel/runtime-corejs2/core-js/json/stringify":"../node_modules/@babel/runtime-corejs2/core-js/json/stringify.js","@babel/runtime-corejs2/regenerator":"../node_modules/@babel/runtime-corejs2/regenerator/index.js","./config.js":"../src/js/config.js","./helpers.js":"../src/js/helpers.js"}],"../node_modules/core-js/library/modules/_bind.js":[function(require,module,exports) {
 'use strict';
 var aFunction = require('./_a-function');
 var isObject = require('./_is-object');
@@ -3302,7 +3365,31 @@ var View = /*#__PURE__*/function () {
       this._clearHTML();
 
       this._parentElement.insertAdjacentHTML("afterbegin", html);
-    }
+    } // update(data) {
+    //   this._data = data;
+    //   const newMarkup = this._generateMarkup();
+    //   const newDOM = document.createRange().createContextualFragment(newMarkup);
+    //   const newElements = Array.from(newDOM.querySelectorAll('*'));
+    //   const curElements = Array.from(this._parentElement.querySelectorAll('*'));
+    //   newElements.forEach((newEl, i) => {
+    //     const curEl = curElements[i];
+    //     // console.log(curEl, newEl.isEqualNode(curEl));
+    //     // Updates changed TEXT
+    //     if (
+    //       !newEl.isEqualNode(curEl) &&
+    //       newEl.firstChild?.nodeValue.trim() !== ''
+    //     ) {
+    //       // console.log('💥', newEl.firstChild.nodeValue.trim());
+    //       curEl.textContent = newEl.textContent;
+    //     }
+    //     // Updates changed ATTRIBUES
+    //     if (!newEl.isEqualNode(curEl))
+    //       Array.from(newEl.attributes).forEach(attr =>
+    //         curEl.setAttribute(attr.name, attr.value)
+    //       );
+    //   });
+    // }
+
   }, {
     key: "_clearHTML",
     value: function _clearHTML() {
@@ -3403,13 +3490,18 @@ var CountryView = /*#__PURE__*/function (_View) {
       });
     }
   }, {
+    key: "addHandlerFavourite",
+    value: function addHandlerFavourite(handler) {
+      this._parentElement.addEventListener('click', function (e) {
+        var btn = e.target.closest('.btn-fave');
+        if (!btn) return;
+        handler();
+      });
+    }
+  }, {
     key: "_generateHTML",
     value: function _generateHTML() {
-      var _this$_data$neighbour;
-
-      return "\n    <div class=\"country-container-header\">\n          <h2>".concat(this._data.name, " (").concat(this._data.offName, ")</h2>\n      </div>\n      <div class=\"country-container-content\">\n          <div class=\"country-flag\"><img src=\"").concat(this._data.flag, "\" alt=\"").concat(this._data.name, "\"></div>\n          <div class=\"country-details\">\n            <ul>\n                <li>Continent: <strong>").concat(this._data.region, "</strong></li>\n                <li>Capital: <strong>").concat(this._data.capital, "</strong></li>\n                <li>Neighbours: ").concat((_this$_data$neighbour = this._data.neighbours) === null || _this$_data$neighbour === void 0 ? void 0 : _this$_data$neighbour.map(function (nbour) {
-        return "".concat(nbour, ", ");
-      }).join(""), "</li>\n            </ul>\n          </div>\n      </div>\n    ");
+      return "\n    <div class=\"country-container-header\">\n          <h2>".concat(this._data.name, " (").concat(this._data.offName, ")</h2>\n      </div>\n      <div class=\"country-container-content\">\n          <div class=\"country-flag\"><img src=\"").concat(this._data.flag, "\" alt=\"").concat(this._data.name, "\"></div>\n          <div class=\"country-details\">\n            <ul>\n                <li>Continent: <strong>").concat(this._data.region, "</strong></li>\n                <li>Capital: <strong>").concat(this._data.capital, "</strong></li>\n                <li>Population: <strong>").concat(this._data.pop.toLocaleString('en-US'), "</strong></li>\n            </ul>\n            <br>\n            <div class=\"like-panel\"><button class=\"btn-fave\">\n              ").concat(this._data.favourited ? 'REMOVE FROM LIKES!' : 'ADD TO LIKES', "\n            </button></div>\n          </div>\n      </div>\n    ");
     }
   }]);
   return CountryView;
@@ -3530,7 +3622,8 @@ var ResultsView = /*#__PURE__*/function (_View) {
   }, {
     key: "_generateHTMLPreview",
     value: function _generateHTMLPreview(result) {
-      return "\n        <div class=\"search-results-holder\">\n        <div class=\"search-results-flag-round\">\n        <a href=\"#".concat(result.id, "\"><img src=\"").concat(result.flag, "\"/></a></div>\n        <div class=\"search-results-country-name\">").concat(result.name, "</div>\n    </div>\n    ");
+      var id = window.location.hash.slice(1);
+      return "<a href=\"#".concat(result.id, "\" class=\"result-link\">\n        <div class=\"search-results-holder\">\n        <div class=\"search-results-flag-round\">\n        <img src=\"").concat(result.flag, "\"/></div>\n        <div class=\"search-results-country-name\">").concat(result.name, "</div>\n    </div>\n    </a>\n    ");
     }
   }]);
   return ResultsView;
@@ -3539,7 +3632,82 @@ var ResultsView = /*#__PURE__*/function (_View) {
 var _default = new ResultsView();
 
 exports.default = _default;
-},{"@babel/runtime-corejs2/core-js/reflect/construct":"../node_modules/@babel/runtime-corejs2/core-js/reflect/construct.js","@babel/runtime-corejs2/helpers/classCallCheck":"../node_modules/@babel/runtime-corejs2/helpers/classCallCheck.js","@babel/runtime-corejs2/helpers/createClass":"../node_modules/@babel/runtime-corejs2/helpers/createClass.js","@babel/runtime-corejs2/helpers/assertThisInitialized":"../node_modules/@babel/runtime-corejs2/helpers/assertThisInitialized.js","@babel/runtime-corejs2/helpers/inherits":"../node_modules/@babel/runtime-corejs2/helpers/inherits.js","@babel/runtime-corejs2/helpers/possibleConstructorReturn":"../node_modules/@babel/runtime-corejs2/helpers/possibleConstructorReturn.js","@babel/runtime-corejs2/helpers/getPrototypeOf":"../node_modules/@babel/runtime-corejs2/helpers/getPrototypeOf.js","@babel/runtime-corejs2/helpers/defineProperty":"../node_modules/@babel/runtime-corejs2/helpers/defineProperty.js","./View":"../src/js/views/View.js"}],"../src/js/controller.js":[function(require,module,exports) {
+},{"@babel/runtime-corejs2/core-js/reflect/construct":"../node_modules/@babel/runtime-corejs2/core-js/reflect/construct.js","@babel/runtime-corejs2/helpers/classCallCheck":"../node_modules/@babel/runtime-corejs2/helpers/classCallCheck.js","@babel/runtime-corejs2/helpers/createClass":"../node_modules/@babel/runtime-corejs2/helpers/createClass.js","@babel/runtime-corejs2/helpers/assertThisInitialized":"../node_modules/@babel/runtime-corejs2/helpers/assertThisInitialized.js","@babel/runtime-corejs2/helpers/inherits":"../node_modules/@babel/runtime-corejs2/helpers/inherits.js","@babel/runtime-corejs2/helpers/possibleConstructorReturn":"../node_modules/@babel/runtime-corejs2/helpers/possibleConstructorReturn.js","@babel/runtime-corejs2/helpers/getPrototypeOf":"../node_modules/@babel/runtime-corejs2/helpers/getPrototypeOf.js","@babel/runtime-corejs2/helpers/defineProperty":"../node_modules/@babel/runtime-corejs2/helpers/defineProperty.js","./View":"../src/js/views/View.js"}],"../src/js/views/favouritesView.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _construct = _interopRequireDefault(require("@babel/runtime-corejs2/core-js/reflect/construct"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/createClass"));
+
+var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/assertThisInitialized"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/inherits"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/getPrototypeOf"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/defineProperty"));
+
+var _View2 = _interopRequireDefault(require("./View.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2.default)(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2.default)(this).constructor; result = (0, _construct.default)(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2.default)(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !_construct.default) return false; if (_construct.default.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call((0, _construct.default)(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+var FavouritesView = /*#__PURE__*/function (_View) {
+  (0, _inherits2.default)(FavouritesView, _View);
+
+  var _super = _createSuper(FavouritesView);
+
+  function FavouritesView() {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, FavouritesView);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "_parentElement", document.querySelector('.fave-list'));
+    (0, _defineProperty2.default)((0, _assertThisInitialized2.default)(_this), "_errorMessage", 'No favourites yet!');
+    return _this;
+  }
+
+  (0, _createClass2.default)(FavouritesView, [{
+    key: "addHandlerRender",
+    value: function addHandlerRender(handler) {
+      window.addEventListener('load', handler);
+    }
+  }, {
+    key: "_generateHTML",
+    value: function _generateHTML() {
+      return this._data.map(this._generateHTMLPreview).join('');
+    }
+  }, {
+    key: "_generateHTMLPreview",
+    value: function _generateHTMLPreview(result) {
+      var id = window.location.hash.slice(1);
+      return "\n         <li><a href=\"#".concat(result.id, "\">").concat(result.name, "</a></li>\n        ");
+    }
+  }]);
+  return FavouritesView;
+}(_View2.default);
+
+var _default = new FavouritesView();
+
+exports.default = _default;
+},{"@babel/runtime-corejs2/core-js/reflect/construct":"../node_modules/@babel/runtime-corejs2/core-js/reflect/construct.js","@babel/runtime-corejs2/helpers/classCallCheck":"../node_modules/@babel/runtime-corejs2/helpers/classCallCheck.js","@babel/runtime-corejs2/helpers/createClass":"../node_modules/@babel/runtime-corejs2/helpers/createClass.js","@babel/runtime-corejs2/helpers/assertThisInitialized":"../node_modules/@babel/runtime-corejs2/helpers/assertThisInitialized.js","@babel/runtime-corejs2/helpers/inherits":"../node_modules/@babel/runtime-corejs2/helpers/inherits.js","@babel/runtime-corejs2/helpers/possibleConstructorReturn":"../node_modules/@babel/runtime-corejs2/helpers/possibleConstructorReturn.js","@babel/runtime-corejs2/helpers/getPrototypeOf":"../node_modules/@babel/runtime-corejs2/helpers/getPrototypeOf.js","@babel/runtime-corejs2/helpers/defineProperty":"../node_modules/@babel/runtime-corejs2/helpers/defineProperty.js","./View.js":"../src/js/views/View.js"}],"../src/js/controller.js":[function(require,module,exports) {
 "use strict";
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime-corejs2/helpers/asyncToGenerator"));
@@ -3554,6 +3722,8 @@ var _searchView = _interopRequireDefault(require("./views/searchView.js"));
 
 var _resultsView = _interopRequireDefault(require("./views/resultsView.js"));
 
+var _favouritesView = _interopRequireDefault(require("./views/favouritesView.js"));
+
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -3562,7 +3732,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 if (module.hot) {
   module.hot.accept();
-}
+} // favouritesView.render(model.state.favourites)
+
 
 var controlCountries = /*#__PURE__*/function () {
   var _ref = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
@@ -3582,31 +3753,33 @@ var controlCountries = /*#__PURE__*/function () {
             return _context.abrupt("return");
 
           case 4:
-            _countryView.default.renderSpinner(); // 1 - Loading the country
+            _countryView.default.renderSpinner();
+
+            _favouritesView.default.render(model.state.favourites); // 1 - Loading the country
 
 
-            _context.next = 7;
+            _context.next = 8;
             return model.loadCountry(id);
 
-          case 7:
+          case 8:
             // 2 - Rendering the country
             _countryView.default.render(model.state.country);
 
-            _context.next = 13;
+            _context.next = 14;
             break;
 
-          case 10:
-            _context.prev = 10;
+          case 11:
+            _context.prev = 11;
             _context.t0 = _context["catch"](0);
 
             _countryView.default.renderError();
 
-          case 13:
+          case 14:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[0, 10]]);
+    }, _callee, null, [[0, 11]]);
   }));
 
   return function controlCountries() {
@@ -3641,7 +3814,8 @@ var controlSearchResults = /*#__PURE__*/function () {
 
           case 7:
             // 3 - render results
-            _resultsView.default.render(model.state.search.results);
+            _resultsView.default.render(model.state.search.results); // resultsView.update(model.state.search.results)
+
 
             _context2.next = 13;
             break;
@@ -3664,16 +3838,37 @@ var controlSearchResults = /*#__PURE__*/function () {
   };
 }();
 
-controlSearchResults();
+var controlAddFavourite = function controlAddFavourite() {
+  //  1 add/remove favourte
+  if (!model.state.country.favourited) {
+    model.addFavourite(model.state.country);
+  } else {
+    model.deleteFavourite(model.state.country.id);
+  } // 2 - update country view
+
+
+  _countryView.default.render(model.state.country); // 3 - render favourites
+
+
+  _favouritesView.default.render(model.state.favourites);
+};
+
+var controlFavourites = function controlFavourites() {
+  _favouritesView.default.render(model.state.favourites);
+};
 
 var init = function init() {
+  _favouritesView.default.addHandlerRender(controlFavourites);
+
   _countryView.default.addHandlerRender(controlCountries);
 
   _searchView.default.addHandlerSearch(controlSearchResults);
+
+  _countryView.default.addHandlerFavourite(controlAddFavourite);
 };
 
 init();
-},{"@babel/runtime-corejs2/helpers/asyncToGenerator":"../node_modules/@babel/runtime-corejs2/helpers/asyncToGenerator.js","@babel/runtime-corejs2/regenerator":"../node_modules/@babel/runtime-corejs2/regenerator/index.js","./model.js":"../src/js/model.js","./views/countryView.js":"../src/js/views/countryView.js","./views/searchView.js":"../src/js/views/searchView.js","./views/resultsView.js":"../src/js/views/resultsView.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"@babel/runtime-corejs2/helpers/asyncToGenerator":"../node_modules/@babel/runtime-corejs2/helpers/asyncToGenerator.js","@babel/runtime-corejs2/regenerator":"../node_modules/@babel/runtime-corejs2/regenerator/index.js","./model.js":"../src/js/model.js","./views/countryView.js":"../src/js/views/countryView.js","./views/searchView.js":"../src/js/views/searchView.js","./views/resultsView.js":"../src/js/views/resultsView.js","./views/favouritesView.js":"../src/js/views/favouritesView.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -3701,7 +3896,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49885" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59572" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

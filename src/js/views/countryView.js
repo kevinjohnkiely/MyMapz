@@ -14,6 +14,14 @@ class CountryView extends View {
     );
   }
 
+  addHandlerFavourite(handler){
+    this._parentElement.addEventListener('click', function(e) {
+      const btn = e.target.closest('.btn-fave')
+      if(!btn) return
+      handler()
+    })
+  }
+
   _generateHTML() {
     return `
     <div class="country-container-header">
@@ -27,16 +35,17 @@ class CountryView extends View {
             <ul>
                 <li>Continent: <strong>${this._data.region}</strong></li>
                 <li>Capital: <strong>${this._data.capital}</strong></li>
-                <li>Neighbours: ${this._data.neighbours
-                  ?.map((nbour) => {
-                    return `${nbour}, `;
-                  })
-                  .join("")}</li>
+                <li>Population: <strong>${this._data.pop.toLocaleString('en-US')}</strong></li>
             </ul>
+            <br>
+            <div class="like-panel"><button class="btn-fave">
+              ${this._data.favourited ? 'REMOVE FROM LIKES!' : 'ADD TO LIKES'}
+            </button></div>
           </div>
       </div>
     `;
   }
+
 }
 
 export default new CountryView();
